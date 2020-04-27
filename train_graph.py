@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torch import optim
 from glmnet_graph_learning import GraphLearning, GraphModule, loss_graph_net
-#from willow_ip import WillowDataset
+from willow_ip import WillowDataset
 from pascal_voc_ip import PascalVOCDataset
 from torch.utils.tensorboard import SummaryWriter
 
@@ -10,26 +10,24 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 def train(counter, writer, train_dataset, optimizer, model, epoch_loss):
+    print(counter)
+    print(len(train_dataset))
     for val in train_dataset:
         x, edge_index, edge_attr = val.x, val.edge_index, val.edge_attr
-        x=x.to(device)
-        edge_attr=edge_attr.to(device)
-        #print(device)
-        #print(val)
-        edge_index=edge_index.to(device)
-    
+        x.to(device)
+        edge_attr.to(device)
+        edge_index.to(device)
         x_i, edge_attr = model(x, edge_index)
         optimizer.zero_grad()
         x_i_proj, x_j_proj = model.graph_learn.x_i_proj, model.graph_learn.x_j_proj
         graph_param = edge_attr
 
         loss = loss_graph_net(x_i_proj, x_j_proj, graph_param, edge_index)
-        writer.add_scalar('Loss_iter', loss, counter)
+        writer.add_scalar('Loss/iter', loss, counter)
         loss.backward(retain_graph=True)
         optimizer.step()
         epoch_loss += loss
         counter += 1
-        
     return epoch_loss / len(train_dataset), counter, model
 
 
@@ -37,9 +35,9 @@ def run_validation(val_dataset, model):
     validation_loss = 0
     for val in val_dataset:
         x, edge_index, edge_attr = val.x, val.edge_index, val.edge_attr
-        x=x.to(device)
-        edge_index=edge_index.to(device)
-        edge_attr=edge_attr.to(device)
+        x.to(device)
+        edge_index.to(device)
+        edge_attr.to(device)
         x_i, edge_attr = model(x, edge_index)
         x_i_proj, x_j_proj = model.graph_learn.x_i_proj, model.graph_learn.x_j_proj
         graph_param = edge_attr
@@ -49,7 +47,7 @@ def run_validation(val_dataset, model):
 
 
 def main():
-    epochs = 100
+    epochs = 30
     counter = 0
     dataset = 'voc'
     if dataset == 'voc':
@@ -75,19 +73,20 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter('graph/voc_person')
+    writer = SummaryWriter('graph/voc_person_2')
     for epoch in range(epochs):
         loss_epoch, counter, model = train(
             counter, writer,
             train_dataset, optimizer,
             model, epoch_loss
         )
-        writer.add_scalar('Loss_epoch', loss_epoch, epoch)
-        if epoch % 3:
+        print(epoch)
+        writer.add_scalar('Loss/epoch', loss_epoch, epoch)
+        if epoch % 10 == 0:
             with torch.no_grad():
                 count_validation = count_validation + 1
                 loss_validation = run_validation(val_dataset, model)
-                writer.add_scalar('Loss validation', loss_validation, count_validation)
+                writer.add_scalar('Loss/validation', loss_validation, epoch)
                 if loss_validation >= prev_validation:
                     not_improved += 1
                 else:
