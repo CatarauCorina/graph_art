@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torch import optim
 from glmnet_graph_learning import GraphLearning, GraphModule, loss_graph_net
-from willow_ip import WillowDataset
+#from willow_ip import WillowDataset
 from pascal_voc_ip import PascalVOCDataset
 from torch.utils.tensorboard import SummaryWriter
 
@@ -14,9 +14,9 @@ def train(counter, writer, train_dataset, optimizer, model, epoch_loss):
     print(len(train_dataset))
     for val in train_dataset:
         x, edge_index, edge_attr = val.x, val.edge_index, val.edge_attr
-        x.to(device)
-        edge_attr.to(device)
-        edge_index.to(device)
+        x = x.to(device)
+        edge_attr = edge_attr.to(device)
+        edge_index = edge_index.to(device)
         x_i, edge_attr = model(x, edge_index)
         optimizer.zero_grad()
         x_i_proj, x_j_proj = model.graph_learn.x_i_proj, model.graph_learn.x_j_proj
@@ -35,9 +35,9 @@ def run_validation(val_dataset, model):
     validation_loss = 0
     for val in val_dataset:
         x, edge_index, edge_attr = val.x, val.edge_index, val.edge_attr
-        x.to(device)
-        edge_index.to(device)
-        edge_attr.to(device)
+        x = x.to(device)
+        edge_index = edge_index.to(device)
+        edge_attr = edge_attr.to(device)
         x_i, edge_attr = model(x, edge_index)
         x_i_proj, x_j_proj = model.graph_learn.x_i_proj, model.graph_learn.x_j_proj
         graph_param = edge_attr
@@ -73,7 +73,7 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter('graph/voc_person_2')
+    writer = SummaryWriter('graph/voc_person')
     for epoch in range(epochs):
         loss_epoch, counter, model = train(
             counter, writer,
