@@ -21,7 +21,7 @@ class GraphModule(nn.Module):
         return
 
     def forward(self, x, edge_index):
-        x_i, self.edge_values = self.graph_learn(x, edge_index=edge_index, edge_attr=self.edge_values)
+        x_i, self.edge_values = self.graph_learn(x, edge_index, self.edge_values)
         return x_i, self.edge_values
 
 
@@ -37,12 +37,13 @@ class GraphLearning(geo_nn.MessagePassing):
 
     def message(self, x, x_i, x_j, edge_index, edge_attr):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
         edge_values = edge_attr.clone()
         edge_values = edge_values.to(device)
-        x_i = x_i.to(device)
-        x_j = x_j.to(device)
         x_i_projected = self.projection_embedding(x_i)
         x_j_projected = self.projection_embedding(x_j)
+        x_i_projected = x_i_projected.to(device)
+        x_j_projected = x_j_projected.to(device)
         self.x_i_proj = x_i_projected
         self.x_j_proj = x_j_projected
         diff = torch.abs(x_i_projected - x_j_projected)
@@ -55,19 +56,18 @@ class GraphLearning(geo_nn.MessagePassing):
         return x_i, edge_values
 
     def aggregate(self, inputs, index, dim_size):
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
         x_i, edge_attr = inputs
-        #print(type(self.aggr))
-        #print(type(x_i))
-        #print(type(index))
-        #print(type(edge_attr))
+        x_i = x_i.to(device)
+        edge_attr = edge_attr.to(device)
         return scatter_(self.aggr, x_i, index, self.node_dim, dim_size), edge_attr
 
     def update(self, aggr_out):
         return aggr_out
 
     def forward(self, x, edge_index, edge_attr):
-        #edge_index, _ = remove_self_loops(edge_index)
-        x_i, edge_attr_res = self.propagate(edge_index,x=x, edge_attr=edge_attr)
+        edge_index, _ = remove_self_loops(edge_index)
+        x_i, edge_attr_res = self.propagate(x=x, edge_index=edge_index, edge_attr=edge_attr)
         return x_i, edge_attr_res
 
 
@@ -77,4 +77,4 @@ def loss_graph_net(x_i, x_j, edge_attr, edge_index, gamma=0.1):
     for idx, edge_index in enumerate(edge_index.T):
         loss_sum = loss_sum + euclidean_distance_nodes[idx]*edge_attr[tuple(edge_index)]
     final_loss = loss_sum + gamma*torch.norm(edge_attr, p='fro')
-    return Variable(final_loss,requires_grad = True)
+    return final_loss
