@@ -21,8 +21,8 @@ class GraphModule(nn.Module):
         return
 
     def forward(self, x, edge_index):
-        x_i, self.edge_values = self.graph_learn(x, edge_index, self.edge_values)
-        return x_i, self.edge_values
+        x_i, new_edge_values = self.graph_learn(x, edge_index, self.edge_values)
+        return x_i, new_edge_values
 
 
 class GraphLearning(geo_nn.MessagePassing):
@@ -73,6 +73,7 @@ class GraphLearning(geo_nn.MessagePassing):
 
 def loss_graph_net(x_i, x_j, edge_attr, edge_index, gamma=0.1):
     euclidean_distance_nodes = torch.pairwise_distance(x_i, x_j, 2)
+
     loss_sum = 0
     for idx, edge_index in enumerate(edge_index.T):
         loss_sum = loss_sum + euclidean_distance_nodes[idx]*edge_attr[tuple(edge_index)]
