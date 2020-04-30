@@ -97,7 +97,7 @@ class COCODataset(InMemoryDataset):
         ])
         data_list = []
         print(len(self.img_data))
-        for count, img in enumerate(self.img_data):
+        for count, img in enumerate(self.img_data[:20000]):
             try:
                 if count %100 ==0:
                     print(count)
