@@ -97,35 +97,38 @@ class COCODataset(InMemoryDataset):
         ])
         data_list = []
         print(len(self.img_data))
-        for count,img in enumerate(self.img_data):
-            if count %100 ==0:
-              print(count)
-            im_id = img['id']
-            annIds = self.coco_interface.getAnnIds(imgIds=im_id, catIds=[1], iscrowd=None)
-            # get the annotations
-            anns = self.coco_interface.loadAnns(annIds)
-
-            poss, ys = [], []
-            # for a in anns:
-            kp = anns[0]['keypoints']
-            kp = np.reshape(np.array(kp), (17, 3))
-            x = kp[:, 0]
-            y = kp[:, 1]
-            poss += [x, y]
-            y = torch.tensor(ys, dtype=torch.long)
-            pos = torch.tensor(poss, dtype=torch.float).view(-1, 2)
-            img_arr = Image.fromarray(np.array(io.imread(img['coco_url'])))
-            pos[:, 0] = pos[:, 0] * 256.0 / (img_arr.size[0])
-            pos[:, 1] = pos[:, 1] * 256.0 / (img_arr.size[1])
+        for count, img in enumerate(self.img_data):
             try:
-                img_arr = img_arr.resize((256, 256), resample=Image.BICUBIC)
-                img_arr = transform(img_arr)
-                img_name = img['coco_url']
+                if count %100 ==0:
+                    print(count)
+                im_id = img['id']
+                annIds = self.coco_interface.getAnnIds(imgIds=im_id, catIds=[1], iscrowd=None)
+                # get the annotations
+                anns = self.coco_interface.loadAnns(annIds)
 
-                data = Data(img=img_arr, pos=pos, name=img_name)
-                data_list.append(data)
+                poss, ys = [], []
+                # for a in anns:
+                kp = anns[0]['keypoints']
+                kp = np.reshape(np.array(kp), (17, 3))
+                x = kp[:, 0]
+                y = kp[:, 1]
+                poss += [x, y]
+                y = torch.tensor(ys, dtype=torch.long)
+                pos = torch.tensor(poss, dtype=torch.float).view(-1, 2)
+                img_arr = Image.fromarray(np.array(io.imread(img['coco_url'])))
+                pos[:, 0] = pos[:, 0] * 256.0 / (img_arr.size[0])
+                pos[:, 1] = pos[:, 1] * 256.0 / (img_arr.size[1])
+                try:
+                    img_arr = img_arr.resize((256, 256), resample=Image.BICUBIC)
+                    img_arr = transform(img_arr)
+                    img_name = img['coco_url']
+
+                    data = Data(img=img_arr, pos=pos, name=img_name)
+                    data_list.append(data)
+                except:
+                    print(img_arr)
             except:
-                print(img_arr)
+                print(img['coco_url'])
         imgs = [data.img for data in data_list]
         loader = DataLoader(imgs, self.batch_size, shuffle=False)
         data_list = self.load_vgg_processed_inputs(loader, data_list)
