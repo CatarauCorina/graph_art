@@ -18,7 +18,7 @@ def train(counter, writer, train_dataset, optimizer, model, epoch_loss):
         edge_attr = edge_attr.to(device)
         edge_index = edge_index.to(device)
         x_i, edge_attr = model(x, edge_index)
-        print(counter)
+        #print(counter)
 
         x_i_proj, x_j_proj = model.graph_learn.x_i_proj, model.graph_learn.x_j_proj
         graph_param = edge_attr.clone()
@@ -75,7 +75,7 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter('graph_new/voc_graph_learning')
+    writer = SummaryWriter('graph_new/voc_graph_learning2')
     for epoch in range(epochs):
         loss_epoch, counter, model = train(
             counter, writer,
@@ -96,6 +96,8 @@ def main():
         if not_improved == 3:
             torch.save(model.state_dict(), 'person_voc_gl.pth')
             break
+    torch.save(model.state_dict(),'person_graph_lr_all.pth')
+
 
     return
 

@@ -20,7 +20,7 @@ from torch_geometric.data import InMemoryDataset, Data
 class COCODataset(InMemoryDataset):
     categories = ['duck']
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    batch_size = 32
+    batch_size = 1
 
     def __init__(self, root='./data/coco_processed/', category='face', transform=None, pre_transform=None):
         self.root = root
