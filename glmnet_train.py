@@ -27,7 +27,7 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
         y, edge_index_y, edge_attr_y = val_y.x, val_y.edge_index, val_y.edge_attr
         x = x.to(device)
         y = y.to(device)
-        edge_index_x = edge_attr_x.to(device)
+        edge_attr_x = edge_attr_x.to(device)
         edge_attr_y = edge_attr_y.to(device)
         edge_index_x =edge_index_x.to(device)
         edge_index_y =edge_index_y.to(device)
