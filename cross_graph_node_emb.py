@@ -9,6 +9,8 @@ from torch_geometric.utils import add_self_loops, degree
 from geomloss import SamplesLoss
 from sinkhorn import Sinkhorn
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 
 class CrossGraph(nn.Module):
     def __init__(self, dim):
@@ -27,8 +29,8 @@ class CrossGraph(nn.Module):
         c_yx = c_yx.unsqueeze(0)
         dsm_xy = self.sinkhorn_layer(c_xy).squeeze(0)
         dsm_yx = self.sinkhorn_layer(c_yx).squeeze(0)
-        e_attr_1_conv = torch.tensor([dsm_xy[p[0], p[1]] for p in list(zip(edge_index_g1[0], edge_index_g1[1]))])
-        e_attr_2_conv = torch.tensor([dsm_yx[p[0], p[1]] for p in list(zip(edge_index_g2[0], edge_index_g2[1]))])
+        e_attr_1_conv = torch.tensor([dsm_xy[p[0], p[1]] for p in list(zip(edge_index_g1[0], edge_index_g1[1]))]).to(device)
+        e_attr_2_conv = torch.tensor([dsm_yx[p[0], p[1]] for p in list(zip(edge_index_g2[0], edge_index_g2[1]))]).to(device)
         out_conv_xy = self.gconv_1(y_g2, edge_index_g2, e_attr_1_conv)
 
         out_conv_yx = self.gconv_1(x_g1, edge_index_g1, e_attr_2_conv)
