@@ -6,4 +6,6 @@ data/facial_processed filter=lfs diff=lfs merge=lfs -text
 data/voc_processed filter=lfs diff=lfs merge=lfs -text
 data/willow_processed filter=lfs diff=lfs merge=lfs -text
 data/facial_processed/facial/facial filter=lfs diff=lfs merge=lfs -text
-data/facial_processed/facial/processed filter=lfs diff=lfs merge=lfs -text
+data/facial_processed/facial/processed/* filter=lfs diff=lfs merge=lfs -text
+data/facial_processed/processed/processed filter=lfs diff=lfs merge=lfs -text
+
