@@ -58,12 +58,12 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
         val_y = pair[1]
         x, edge_index_x, edge_attr_x = val_x.x, val_x.edge_index, val_x.edge_attr
         y, edge_index_y, edge_attr_y = val_y.x, val_y.edge_index, val_y.edge_attr
-        x.to(device)
-        y.to(device)
-        edge_attr_x.to(device)
-        edge_attr_y.to(device)
-        edge_index_x.to(device)
-        edge_index_y.to(device)
+        x = x.to(device)
+        y = y.to(device)
+        edge_attr_x = edge_attr_x.to(device)
+        edge_attr_y = edge_attr_y.to(device)
+        edge_index_x = edge_index_x.to(device)
+        edge_index_y = edge_index_y.to(device)
         if len(torch.tensor(data['perm_matrix']).shape) > 2:
             perm_matrix = torch.stack([torch.stack(t) for t in data['perm_matrix']]).to(device)
         else:
