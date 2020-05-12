@@ -85,8 +85,8 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
         writer.add_scalar('Iter/acc', acc, counter)
 
         loss.backward()
-        if counter % 500 == 0:
-            plot_grad_flow(model.named_parameters())
+        # if counter % 500 == 0:
+        #     plot_grad_flow(model.named_parameters())
         print([(m[0],m[1].grad.min().item(),m[1].grad.max().item()) for m in list(model.named_parameters()) if m[1].grad is not None])
         for n, p in model.named_parameters():
             if (p.requires_grad) and ("bias" not in n) and p.grad is not None:
@@ -106,14 +106,14 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
 def main():
     epochs = 100
     counter = 0
-    ds_to_run = 'willow'
+    ds_to_run = 'facial'
     ds_train = PairsDS(ds_type=ds_to_run)
     # loader_train = DataLoader(ds_train, 2, shuffle=True)
     batch_size = 1
     ds_val = PairsDS(mode='valid')
     epoch_loss = 0
     epoch_acc = 0
-    model = GraphMatchAtt(ds_train[0]['pair'][0].x.shape[0], batch_size,kernel_type='spline')
+    model = GraphMatchAtt(ds_train[0]['pair'][0].x.shape[0], batch_size,kernel_type='spline').to(device)
     criterion = CrossEntropyLoss()
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
