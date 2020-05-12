@@ -123,8 +123,8 @@ class GraphMatchAtt(nn.Module):
         e_attr_1_conv , e_attr_2_conv = self.cross_graph.process_edges(
             edge_index_g1, edge_index_g2, edge_attr_1, edge_attr_2, self.multi_head
         )
-        edge_index_1 = edge_index_g1[:, :int(edge_index_g1.shape[1]/self.batch_size)].repeat(self.batch_size,1,1)
-        edge_index_2 = edge_index_g2[:, :int(edge_index_g2.shape[1]/self.batch_size)].repeat(self.batch_size,1,1)
+        edge_index_1 = edge_index_g1[:, :int(edge_index_g1.shape[1]/self.batch_size)].repeat(self.batch_size,1,1).to(device)
+        edge_index_2 = edge_index_g2[:, :int(edge_index_g2.shape[1]/self.batch_size)].repeat(self.batch_size,1,1).to(device)
 
         x_i_1, y_i_2 = self.cross_graph.gcn_batch_conv(
             x_i_1, y_i_2, edge_index_1, edge_index_2, e_attr_1_conv, e_attr_2_conv, self.conv1,self.multi_head

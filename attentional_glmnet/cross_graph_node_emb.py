@@ -75,8 +75,8 @@ class CrossGraph(nn.Module):
 
         e_attr_1_conv , e_attr_2_conv = self.process_edges(edge_index_g1, edge_index_g2, dsm_xy, dsm_yx, self.multi_head)
 
-        edge_index_1 = edge_index_g1[:, :int(edge_index_g1.shape[1] / self.batch_size)].repeat(self.batch_size, 1, 1)
-        edge_index_2 = edge_index_g2[:, :int(edge_index_g2.shape[1] / self.batch_size)].repeat(self.batch_size, 1, 1)
+        edge_index_1 = edge_index_g1[:, :int(edge_index_g1.shape[1] / self.batch_size)].repeat(self.batch_size, 1, 1).to(device)
+        edge_index_2 = edge_index_g2[:, :int(edge_index_g2.shape[1] / self.batch_size)].repeat(self.batch_size, 1, 1).to(device)
 
 
         # edge_index_g1, _ = add_self_loops(edge_index_g1, num_nodes=x_g1.size(0))
@@ -123,7 +123,7 @@ class CrossGraph(nn.Module):
             e_attr_1_conv = torch.stack([torch.tensor([m[p[0], p[1]] for p in list(zip(eg1_x, eg1_y))]) for m in matrix_1])
             e_attr_2_conv = torch.stack([torch.tensor([m[p[0], p[1]] for p in list(zip(eg2_x, eg2_y))]) for m in matrix_2])
 
-        return e_attr_1_conv, e_attr_2_conv
+        return e_attr_1_conv.to(device), e_attr_2_conv.to(device)
 
     def gcn_batch_conv(self, x_i_1, y_i_2, edge_index_1, edge_index_2, e_attr_1_conv, e_attr_2_conv, model, multi_head):
         x_i_1_all = []
@@ -139,8 +139,8 @@ class CrossGraph(nn.Module):
             x_i_1_all.append(x_i_1_it)
             y_i_2_all.append(y_i_2_it)
 
-        x_i_1 = torch.stack(x_i_1_all)
-        y_i_2 = torch.stack(y_i_2_all)
+        x_i_1 = torch.stack(x_i_1_all).to(device)
+        y_i_2 = torch.stack(y_i_2_all).to(device)
         return x_i_1, y_i_2
 
 
