@@ -81,6 +81,7 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
         loss = criterion(edge_attr_1, perm_matrix, torch.tensor(data['n1_gt']).unsqueeze(0), torch.tensor(data['n2_gt']).unsqueeze(0))
 
         print(loss)
+        perm_matrix = perm_matrix.to(device)
         acc, total_pred_num = matching_accuracy(edge_attr_1, perm_matrix,torch.tensor(data['n1_gt']).unsqueeze(0), torch.tensor(data['n2_gt']).unsqueeze(0))
         # #tp, fp, fn = get_pos_neg(edge_attr_1, perm_matrix)
         print(acc)
