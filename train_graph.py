@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torch import optim
 from glmnet_graph_learning import GraphLearning, GraphModule, loss_graph_net
-#from willow_ip import WillowDataset
+from willow_ip import WillowDataset
 from pascal_voc_ip import PascalVOCDataset
 from torch.utils.tensorboard import SummaryWriter
 
@@ -24,8 +24,16 @@ def train(counter, writer, train_dataset, optimizer, model, epoch_loss):
         graph_param = edge_attr.clone()
 
         loss = loss_graph_net(x_i_proj, x_j_proj, graph_param, edge_index)
+
         writer.add_scalar('Loss/iter', loss, counter)
         loss.backward()
+        for name, params in model.named_parameters():
+            if params.is_leaf and params.grad is not None:
+                print(f'{name} {params.is_leaf}: {torch.sum(params.grad)}')
+            elif params.grad is None:
+                print(f'{name} {params.is_leaf}: {params.grad}')
+            else:
+                print(f't {name} {params.is_leaf}')
         optimizer.step()
         optimizer.zero_grad()
         epoch_loss += loss
@@ -51,7 +59,7 @@ def run_validation(val_dataset, model):
 def main():
     epochs = 30
     counter = 0
-    dataset = 'voc'
+    dataset = 'willow'
     if dataset == 'voc':
         ds = PascalVOCDataset()
         size_matrix = 23

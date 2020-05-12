@@ -19,7 +19,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_loss):
 
 
-    for data in train_dataset:
+    for idx, data in enumerate(train_dataset):
         pair = data['pair']
         val_x = pair[0]
         val_y = pair[1]
@@ -34,12 +34,38 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
         perm_matrix = torch.tensor(data['perm_matrix']).to(device)
 
         x_i_1, y_i_2, edge_index_g1, edge_index_g2, edge_attr_1, edge_attr_2 = model(x, y, edge_index_x, edge_index_y)
-        loss = criterion(edge_attr_1.unsqueeze(0), perm_matrix.unsqueeze(0), data['n1_gt'], data['n2_gt'])
 
+        if idx % 2 == 0:
+            graph_param_1 = edge_attr_1.clone()
+            loss_graph_learn = loss_graph_net(model.x_i_proj_1, model.x_j_proj_1, graph_param_1, edge_index_x)
+        else:
+            graph_param_2 = edge_attr_2.clone()
+            loss_graph_learn = loss_graph_net(model.y_i_proj_2, model.y_j_proj_2, graph_param_2, edge_index_y)
+
+
+        loss_glmnet = criterion(edge_attr_1.unsqueeze(0), perm_matrix.unsqueeze(0), data['n1_gt'], data['n2_gt'])
+        old_params = {}
+        params_not_updated = []
+        for name, params in model.named_parameters():
+            old_params[name] = params.clone()
+
+        loss = loss_glmnet + loss_graph_learn
         loss.backward()
+        print(list(old_params.keys()))
+        for name, params in model.named_parameters():
+            if (old_params[name] == params).all():
+                params_not_updated.append(name)
+            if params.is_leaf and params.grad is not None:
+                print(f'{name}: {torch.sum(params.grad)}')
+            elif params.is_leaf:
+                print(f'{name}: {params.grad}')
 
 
         optimizer.step()
+
+        #print(params_not_updated)
+        # if len(params_not_updated) > 3:
+        #     print(counter)
 
         optimizer.zero_grad()
         epoch_loss += loss
@@ -63,6 +89,9 @@ def run_validation(val_dataset, model):
         loss = loss_graph_net(x_i_proj, x_j_proj, graph_param, edge_index)
         validation_loss += loss
     return validation_loss / len(val_dataset)
+
+
+
 
 
 def main():

@@ -18,26 +18,27 @@ class CrossGraph(nn.Module):
 
         self.affinity_matrix = CrossGraphAffinityLearning(dim)
         self.gconv_1 = GCNConv(1024, 1024)
-
         self.sinkhorn_layer = Sinkhorn()
 
     def forward(self, x_g1, y_g2, edge_index_g1, edge_index_g2):
         # Step 1: Add self-loops to the adjacency matrix.
         c_xy = self.affinity_matrix(x_g1, y_g2, edge_index_g1, edge_index_g2)
         c_yx = self.affinity_matrix(y_g2, x_g1, edge_index_g2, edge_index_g1)
-        c_xy = c_xy.unsqueeze(0)
-        c_yx = c_yx.unsqueeze(0)
-        dsm_xy = self.sinkhorn_layer(c_xy).squeeze(0)
-        dsm_yx = self.sinkhorn_layer(c_yx).squeeze(0)
+        c_xy_aff = c_xy.clone().unsqueeze(0)
+        c_yx_aff = c_yx.clone().unsqueeze(0)
+
+        dsm_xy = self.sinkhorn_layer(c_xy_aff).squeeze(0)
+        dsm_yx = self.sinkhorn_layer(c_yx_aff).squeeze(0)
+
         e_attr_1_conv = torch.tensor([dsm_xy[p[0], p[1]] for p in list(zip(edge_index_g1[0], edge_index_g1[1]))]).to(device)
         e_attr_2_conv = torch.tensor([dsm_yx[p[0], p[1]] for p in list(zip(edge_index_g2[0], edge_index_g2[1]))]).to(device)
-        out_conv_xy = self.gconv_1(y_g2, edge_index_g2, e_attr_1_conv)
 
+        out_conv_xy = self.gconv_1(y_g2, edge_index_g2, e_attr_1_conv)
         out_conv_yx = self.gconv_1(x_g1, edge_index_g1, e_attr_2_conv)
 
-
-        edge_index_g1, _ = add_self_loops(edge_index_g1, num_nodes=x_g1.size(0))
-        edge_index_g2, _ = add_self_loops(edge_index_g2, num_nodes=y_g2.size(0))
+        #
+        # edge_index_g1, _ = add_self_loops(edge_index_g1, num_nodes=x_g1.size(0))
+        # edge_index_g2, _ = add_self_loops(edge_index_g2, num_nodes=y_g2.size(0))
 
 
         return out_conv_xy, out_conv_yx, edge_index_g1, edge_index_g2, dsm_xy, dsm_yx

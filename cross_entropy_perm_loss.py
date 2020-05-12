@@ -26,5 +26,6 @@ class CrossEntropyLoss(nn.Module):
                 gt_perm[b, :pred_ns[b], :gt_ns[b]],
                 reduction='sum')
             n_sum += pred_ns[b].to(n_sum.dtype).to(pred_perm.device)
-
-        return loss / n_sum
+        loss = loss/ n_sum
+        # loss.requires_grad = True
+        return loss
