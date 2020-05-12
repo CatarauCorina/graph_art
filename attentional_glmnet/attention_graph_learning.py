@@ -68,6 +68,8 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
             perm_matrix = torch.stack([torch.stack(t) for t in data['perm_matrix']]).to(device)
         else:
             perm_matrix = torch.tensor(data['perm_matrix']).unsqueeze(0)
+        val_x.pos =val_x.pos.to(device)
+        val_y.pos = val_y.pos.to(device)
 
         x_i_1, y_i_2, edge_index_g1, edge_index_g2, edge_attr_1, edge_attr_2 = model(
             x, y,
