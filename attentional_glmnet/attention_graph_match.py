@@ -6,7 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.nn as nn
 from einops import rearrange
 import numpy as np
-
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class RelationalAttention(nn.Module):
 
@@ -35,7 +35,7 @@ class RelationalAttention(nn.Module):
         x = rearrange(x, "(b n) f -> b n f", n=self.params['N'])
         pos = rearrange(pos, "(b n) f -> b n f", n=self.params['N'])
 
-        x = torch.cat([x, pos], dim=2)
+        x = torch.cat([x, pos], dim=2).to(device)
 
         K = rearrange(self.k_proj(x), "b n (head d) -> b head n d", head=self.params['nr_heads'])
         if self.params['use_norm']:

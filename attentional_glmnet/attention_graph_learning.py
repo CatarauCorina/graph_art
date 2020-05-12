@@ -124,7 +124,7 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter(f'graph/glmnet_pairs_{ds_to_run}_sconv_norm_willow_voting')
+    writer = SummaryWriter(f'graph_att/glmnet_pairs_{ds_to_run}_sconv_norm_voting')
     for idx, epoch in enumerate(range(epochs)):
         print(f'Epoch {idx}')
         epoch_loss, epoch_acc, counter, model = train(
@@ -138,7 +138,7 @@ def main():
         writer.add_scalar('Epoch/acc', epoch_acc, counter)
         plot_grad_flow(model.named_parameters())
 
-    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sconv_willow_norm_voting.pth')
+    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sconv_norm_voting.pth')
 
     return
 
