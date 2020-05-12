@@ -31,7 +31,7 @@ class RelationalAttention(nn.Module):
         self.linear1 = nn.Linear(params['node_size']*params['nr_heads'], params['in_shape'])
 
     def forward(self, x, pos):
-        pos = torch.tensor(pos, dtype=torch.float32)
+        pos = torch.tensor(pos, dtype=torch.float32).to(device)
         x = rearrange(x, "(b n) f -> b n f", n=self.params['N'])
         pos = rearrange(pos, "(b n) f -> b n f", n=self.params['N'])
 
