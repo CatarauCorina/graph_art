@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import random
 import torch.nn.functional as F
 from willow_ip import WillowDataset
 import torch.nn as nn
@@ -51,7 +52,9 @@ def plot_grad_flow(named_parameters):
 
 def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_loss, epoch_acc, epoch):
 
-    for idx,data in enumerate(train_dataset):
+    for idx in range(20000):
+        choice = random.randint(0, len(train_dataset))
+        data = train_dataset[choice]
 
         pair = data['pair']
         val_x = pair[0]
@@ -127,7 +130,7 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter(f'graph_att/glmnet_pairs_{ds_to_run}_sconv_norm_voting')
+    writer = SummaryWriter(f'graph_att/glmnet_pairs_{ds_to_run}_sconv_norm_voting_20k')
     for idx, epoch in enumerate(range(epochs)):
         print(f'Epoch {idx}')
         epoch_loss, epoch_acc, counter, model = train(
@@ -141,7 +144,7 @@ def main():
         writer.add_scalar('Epoch/acc', epoch_acc, counter)
         plot_grad_flow(model.named_parameters())
 
-    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sconv_norm_voting.pth')
+    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sconv_norm_voting_20k.pth')
 
     return
 
