@@ -1,6 +1,7 @@
 *.json filter=lfs diff=lfs merge=lfs -text
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.npz filter=lfs diff=lfs merger=lfs -text
+*.mat filter=lfs diff=lfs merger=lfs -text
 data/coco_processed filter=lfs diff=lfs merge=lfs -text
 data/facial_processed filter=lfs diff=lfs merge=lfs -text
 data/voc_processed filter=lfs diff=lfs merge=lfs -text
@@ -8,4 +9,4 @@ data/willow_processed filter=lfs diff=lfs merge=lfs -text
 data/facial_processed/facial/facial filter=lfs diff=lfs merge=lfs -text
 data/facial_processed/facial/processed/* filter=lfs diff=lfs merge=lfs -text
 data/facial_processed/processed/processed filter=lfs diff=lfs merge=lfs -text
-
+data/willow_processed/willow/* filter=lfs diff=lfs merge=lgs -text
