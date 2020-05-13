@@ -88,9 +88,11 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
         writer.add_scalar('Iter/acc', acc, counter)
 
         loss.backward()
-        # if counter % 500 == 0:
+        if counter % 500 == 0:
+            print([(m[0], m[1].grad.min().item(), m[1].grad.max().item()) for m in list(model.named_parameters()) if
+                   m[1].grad is not None])
+
         #     plot_grad_flow(model.named_parameters())
-        print([(m[0],m[1].grad.min().item(),m[1].grad.max().item()) for m in list(model.named_parameters()) if m[1].grad is not None])
         for n, p in model.named_parameters():
             if (p.requires_grad) and ("bias" not in n) and p.grad is not None:
                 stddev = 1 / ((1 + epoch) ** 0.55)
@@ -119,7 +121,7 @@ def main():
     model = GraphMatchAtt(ds_train[0]['pair'][0].x.shape[0], batch_size,kernel_type='spline').to(device)
     criterion = CrossEntropyLoss()
     model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-2)
 
     model.train()
     count_validation = 0
