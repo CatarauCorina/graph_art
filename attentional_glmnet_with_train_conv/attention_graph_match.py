@@ -115,8 +115,11 @@ class GraphMatchAtt(nn.Module):
     def forward(self, src, tgt, pos_g1, pos_g2, ns_src, ns_tgt, type='img'):
         #Graph attention learning
         x_g1, y_g2 = self.node_encoder(src, tgt, pos_g1, pos_g2, ns_src, ns_tgt)
+        print(x_g1.device)
+        print(pos_g1.device)
         x_i_1, edge_attr_1 = self.graph_learning(x_g1, pos_g1)
         y_i_2, edge_attr_2 = self.graph_learning(y_g2, pos_g2)
+
         edge_index_g1 = self.get_edge_index(edge_attr_1)
         edge_index_g2 = self.get_edge_index(edge_attr_2)
         with torch.no_grad():
