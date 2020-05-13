@@ -158,4 +158,4 @@ class GraphMatchAtt(nn.Module):
             res[0] = res[0] + second_list
             res[1] = res[1] + first_lst
         edge_index = torch.tensor(res, dtype=torch.long)
-        return edge_index
+        return edge_index.to(device)
