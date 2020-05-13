@@ -38,7 +38,7 @@ __C.VOC2011.CLASSES = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 
 
 # Willow-Object Dataset
 __C.WILLOW = edict()
-__C.WILLOW.ROOT_DIR = '../../CW/data/willow_processed/willow'
+__C.WILLOW.ROOT_DIR = '../data/willow_processed/willow'
 __C.WILLOW.CLASSES = ['Car', 'Duck', 'Face', 'Motorbike', 'Winebottle']
 __C.WILLOW.KPT_LEN = 10
 __C.WILLOW.TRAIN_NUM = 20

@@ -80,10 +80,7 @@ def train(
 
         # zero the parameter gradients
 
-
-
-
-        loss = criterion(edge_attr_1, perm_matrix, torch.tensor(n1_gt), torch.tensor(n2_gt))
+        loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
 
         print(loss)
         acc, _, __ = matching_accuracy(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
@@ -93,8 +90,8 @@ def train(
 
         loss.backward()
         if counter % 500 == 0:
-            plot_grad_flow(model.named_parameters())
-        print([(m[0],m[1].grad.min().item(),m[1].grad.max().item()) for m in list(model.named_parameters()) if m[1].grad is not None])
+            # plot_grad_flow(model.named_parameters())
+            print([(m[0],m[1].grad.min().item(),m[1].grad.max().item()) for m in list(model.named_parameters()) if m[1].grad is not None])
         # for n, p in model.named_parameters():
         #     if (p.requires_grad) and ("bias" not in n) and p.grad is not None:
         #         stddev = 1 / ((1 + epoch) ** 0.55)
@@ -164,10 +161,10 @@ def main():
             idx
         )
         writer.add_scalar('Epoch/loss', epoch_loss, idx)
-        writer.add_scalar('Epoch/acc', epoch_acc, counter)
-        plot_grad_flow(model.named_parameters())
+        writer.add_scalar('Epoch/acc', epoch_acc, idx)
 
-    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sconv_willow_norm_voting.pth')
+
+    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_train_conv.pth')
 
     return
 
