@@ -23,8 +23,8 @@ class CrossEntropyLoss(nn.Module):
         n_sum = torch.zeros_like(loss)
         for b in range(batch_num):
             loss += F.binary_cross_entropy(
-                pred_perm[b, :pred_ns[b], :gt_ns[b]],
-                gt_perm[b, :pred_ns[b], :gt_ns[b]],
+                pred_perm[b, :pred_ns[b], :gt_ns[b]].to(device),
+                gt_perm[b, :pred_ns[b], :gt_ns[b]].to(device),
                 reduction='sum')
             n_sum += pred_ns[b].to(n_sum.dtype).to(device)
 
