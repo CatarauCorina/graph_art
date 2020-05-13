@@ -81,11 +81,12 @@ def train(
         # zero the parameter gradients
 
         loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
-
-        print(loss)
+        if counter % 500 == 0:
+            print(loss)
+            print(acc)
         acc, _, __ = matching_accuracy(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
         # #tp, fp, fn = get_pos_neg(edge_attr_1, perm_matrix)
-        print(acc)
+
         writer.add_scalar('Iter/acc', acc, counter)
 
         loss.backward()
@@ -108,7 +109,7 @@ def train(
     return epoch_loss / dataset_size, epoch_acc/ dataset_size, counter, model
 
 def main():
-    epochs = 100
+    epochs = 30
     counter = 0
     ds_to_run = 'willow'
     torch.manual_seed(123)
