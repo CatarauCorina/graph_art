@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.nn as nn
 from einops import rearrange
 import numpy as np
-
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class RelationalAttention(nn.Module):
 
@@ -34,8 +34,8 @@ class RelationalAttention(nn.Module):
         self.linear1 = nn.Linear(params['node_size']*params['nr_heads'], params['in_shape'])
 
     def forward(self, x, pos):
-        pos = torch.tensor(pos, dtype=torch.float32)
-        x = torch.cat([x, pos], dim=2)
+        pos = torch.tensor(pos, dtype=torch.float32).to(device)
+        x = torch.cat([x, pos], dim=2).to(device)
 
         K = rearrange(self.k_proj(x), "b n (head d) -> b head n d", head=self.params['nr_heads'])
         if self.params['use_norm']:
@@ -115,8 +115,7 @@ class GraphMatchAtt(nn.Module):
     def forward(self, src, tgt, pos_g1, pos_g2, ns_src, ns_tgt, type='img'):
         #Graph attention learning
         x_g1, y_g2 = self.node_encoder(src, tgt, pos_g1, pos_g2, ns_src, ns_tgt)
-        print(x_g1.device)
-        print(pos_g1.device)
+
         x_i_1, edge_attr_1 = self.graph_learning(x_g1, pos_g1)
         y_i_2, edge_attr_2 = self.graph_learning(y_g2, pos_g2)
 
