@@ -94,7 +94,7 @@ def train(counter, writer, train_dataset, optimizer, model, criterion, epoch_los
         for n, p in model.named_parameters():
             if (p.requires_grad) and ("bias" not in n) and p.grad is not None:
                 stddev = 1 / ((1 + epoch) ** 0.55)
-                p.grad = torch.add(p.grad,torch.empty(p.grad.shape).normal_(mean=0,std=stddev))
+                p.grad = torch.add(p.grad,torch.empty(p.grad.shape).normal_(mean=0,std=stddev).to(device))
 
         optimizer.step()
 
