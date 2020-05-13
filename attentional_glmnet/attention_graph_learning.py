@@ -124,13 +124,13 @@ def main():
     model = GraphMatchAtt(ds_train[0]['pair'][0].x.shape[0], batch_size,kernel_type='spline').to(device)
     criterion = CrossEntropyLoss()
     model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=1e-2)
+    optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
     model.train()
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter(f'graph_att/glmnet_pairs_{ds_to_run}_sconv_norm_voting_20k')
+    writer = SummaryWriter(f'graph_att/glmnet_pairs_{ds_to_run}_sconv_norm_voting_205k')
     for idx, epoch in enumerate(range(epochs)):
         print(f'Epoch {idx}')
         epoch_loss, epoch_acc, counter, model = train(
@@ -144,7 +144,7 @@ def main():
         writer.add_scalar('Epoch/acc', epoch_acc, counter)
         plot_grad_flow(model.named_parameters())
 
-    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sconv_norm_voting_20k.pth')
+    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sconv_norm_voting_205k.pth')
 
     return
 
