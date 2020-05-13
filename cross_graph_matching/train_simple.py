@@ -110,6 +110,9 @@ def train_eval_model(model,
                 if idx % 500 == 0:
                     print(acc)
                     print(loss)
+                    print(
+                        [(m[0], m[1].grad.min().item(), m[1].grad.max().item()) for m in list(model.named_parameters())
+                         if m[1].grad is not None])
 
                 # tfboard writer
                 loss_dict = {'loss_{}'.format(i): l.item() for i, l in enumerate(multi_loss)}
