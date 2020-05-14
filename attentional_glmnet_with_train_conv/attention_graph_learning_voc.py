@@ -61,6 +61,7 @@ def train(
 
     epoch_loss = 0.0
     running_loss = 0.0
+
     for inputs in dataloader['train']:
         if 'images' in inputs:
             data1, data2 = [_.to(device) for _ in inputs['images']]
@@ -91,17 +92,18 @@ def train(
         loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
 
         acc, _, __ = matching_accuracy_voc(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
-        if counter % 500 == 0:
-            print(loss)
-            print(acc)
-            print([(m[0], m[1].grad.min().item(), m[1].grad.max().item()) for m in list(model.named_parameters()) if
-                   m[1].grad is not None])
 
         writer.add_scalar('Iter/acc', acc, counter)
 
         loss.backward()
         if counter % 100 == 0:
             plot_grad_flow(model.named_parameters(),writer)
+
+        if counter % 500 == 0:
+            print(loss)
+            print(acc)
+            print([(m[0], m[1].grad.min().item(), m[1].grad.max().item()) for m in list(model.named_parameters()) if
+                   m[1].grad is not None])
 
         optimizer.step()
 
@@ -135,7 +137,7 @@ def main():
     if ds_to_run == 'willow':
         size_matrix = 10
     else:
-        size_matrix = 17
+        size_matrix = 19
     model = GraphMatchAtt(size_matrix, batch_size,kernel_type='spline')
 
     dataloader = {x: get_dataloader(image_dataset[x], fix_seed=(x == 'test'))
@@ -156,7 +158,7 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter(f'graph/glmnet_pairs_{ds_to_run}_sgd_full_conv2')
+    writer = SummaryWriter(f'graph/glmnet_pairs_{ds_to_run}_sgd_full_conv19')
     for idx, epoch in enumerate(range(epochs)):
         print(f'Epoch {idx}')
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer,
@@ -175,7 +177,7 @@ def main():
         scheduler.step()
         plot_grad_flow(model.named_parameters())
 
-    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_full_conv2.pth')
+    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_full_conv19.pth')
 
     return
 
