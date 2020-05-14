@@ -47,6 +47,7 @@ def plot_grad_flow(named_parameters, writer):
     plt.legend([Line2D([0], [0], color="c", lw=4),
                 Line2D([0], [0], color="b", lw=4),
                 Line2D([0], [0], color="k", lw=4)], ['max-gradient', 'mean-gradient', 'zero-gradient'])
+    plt.show()
     fig.tight_layout()
     writer.add_figure(tag=f'gradient_flow_custom_attention',
                       figure=fig)
@@ -93,15 +94,16 @@ def train(
             loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
             acc, _, __ = matching_accuracy_voc(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
         except:
+            print('Err')
             print(hungarian(edge_attr_1, n1_gt, n2_gt))
 
         writer.add_scalar('Iter/acc', acc, counter)
 
         loss.backward()
-        if counter % 100 == 0:
-            plot_grad_flow(model.named_parameters(),writer)
+        #if counter % 100 == 0:
+        plot_grad_flow(model.named_parameters(),writer)
 
-        if counter % 500 == 0:
+        if counter % 200 == 0:
             print(loss)
             print(acc)
             print([(m[0], m[1].grad.min().item(), m[1].grad.max().item()) for m in list(model.named_parameters()) if
