@@ -91,7 +91,7 @@ def train(
         loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
 
         acc, _, __ = matching_accuracy_voc(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
-        if counter % 500:
+        if counter % 500 == 0:
             print(loss)
             print(acc)
             print([(m[0], m[1].grad.min().item(), m[1].grad.max().item()) for m in list(model.named_parameters()) if
@@ -156,7 +156,7 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter(f'graph/glmnet_pairs_{ds_to_run}_sgd_full_conv')
+    writer = SummaryWriter(f'graph/glmnet_pairs_{ds_to_run}_sgd_full_conv2')
     for idx, epoch in enumerate(range(epochs)):
         print(f'Epoch {idx}')
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer,
@@ -175,7 +175,7 @@ def main():
         scheduler.step()
         plot_grad_flow(model.named_parameters())
 
-    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_full_conv.pth')
+    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_full_conv2.pth')
 
     return
 
