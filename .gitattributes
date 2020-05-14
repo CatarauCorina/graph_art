@@ -9,4 +9,5 @@ data/willow_processed filter=lfs diff=lfs merge=lfs -text
 data/facial_processed/facial/facial filter=lfs diff=lfs merge=lfs -text
 data/facial_processed/facial/processed/* filter=lfs diff=lfs merge=lfs -text
 data/facial_processed/processed/processed filter=lfs diff=lfs merge=lfs -text
+data/PascalVOC/* filter=lfs diff=lfs merge=lfs -text
 data/willow_processed/willow/* filter=lfs diff=lfs merge=lgs -text
