@@ -90,8 +90,10 @@ def train(
             model(data1, data2, pos_1_exp, pos_2_exp, n1_gt, n2_gt, inp_type)
 
         loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
-
-        acc, _, __ = matching_accuracy_voc(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
+        try:
+            acc, _, __ = matching_accuracy_voc(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
+        except:
+            print(hungarian(edge_attr_1, n1_gt, n2_gt))
 
         writer.add_scalar('Iter/acc', acc, counter)
 
