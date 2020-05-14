@@ -119,8 +119,8 @@ class GraphMatchAtt(nn.Module):
         x_i_1, edge_attr_1 = self.graph_learning(x_g1, pos_g1)
         y_i_2, edge_attr_2 = self.graph_learning(y_g2, pos_g2)
 
-        edge_index_g1 = self.get_edge_index(edge_attr_1)
-        edge_index_g2 = self.get_edge_index(edge_attr_2)
+        edge_index_g1 = self.get_edge_index(edge_attr_1, self.batch_size)
+        edge_index_g2 = self.get_edge_index(edge_attr_2, self.batch_size)
         with torch.no_grad():
             self.att_1 = edge_attr_1
             self.att_2 = edge_attr_2
@@ -149,13 +149,15 @@ class GraphMatchAtt(nn.Module):
         return x_i_1, y_i_2, edge_index_g1, edge_index_g2, edge_attr_1, edge_attr_2
 
 
-    def get_edge_index(self, edge_attr):
+    def get_edge_index(self, edge_attr, batch_size):
         import numpy as np
         res = [[], []]
-        for el in range(edge_attr.shape[1]):
-            first_lst = list(range(el + 1, edge_attr.shape[1]))
+        for el in range(edge_attr.shape[2]):
+            first_lst = list(range(el + 1, edge_attr.shape[2]))
             second_list = list(np.full(len(first_lst), el))
             res[0] = res[0] + second_list
             res[1] = res[1] + first_lst
         edge_index = torch.tensor(res, dtype=torch.long)
+        if batch_size > 1:
+            edge_index =edge_index.repeat(batch_size, 1, 1)
         return edge_index.to(device)

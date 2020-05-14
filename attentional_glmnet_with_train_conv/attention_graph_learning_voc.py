@@ -100,33 +100,35 @@ def train(
         writer.add_scalar('Iter/acc', acc, counter)
 
         loss.backward()
-        #if counter % 100 == 0:
-        plot_grad_flow(model.named_parameters(),writer)
+        if counter % 1000 == 0:
+            plot_grad_flow(model.named_parameters(),writer)
+        epoch_loss += loss
+        epoch_acc += acc
 
-        if counter % 200 == 0:
-            print(loss)
-            print(acc)
+        if counter % 500 == 0:
+            print(epoch_loss/(counter+1))
+            print(epoch_acc/ (counter+1))
+            writer.add_scalar('Avg/acc', epoch_acc/(counter+1), counter)
+            writer.add_scalar('Avg/loss', epoch_loss / (counter + 1), counter)
             print([(m[0], m[1].grad.min().item(), m[1].grad.max().item()) for m in list(model.named_parameters()) if
                    m[1].grad is not None])
 
         optimizer.step()
 
         optimizer.zero_grad()
-        epoch_loss += loss
-        epoch_acc +=acc
         writer.add_scalar('Iter/loss', loss.item(), counter)
         counter += 1
 
-    return epoch_loss / dataset_size, epoch_acc/ dataset_size, counter, model
+    return epoch_loss / counter, epoch_acc/ counter, counter, model
 
 def main():
-    epochs = 30
+    epochs = 10
     counter = 0
     ds_to_run = 'voc'
     torch.manual_seed(123)
     batch_size = 1
     dataset_len = {
-        'train': 7000 * batch_size,
+        'train': 2000 * batch_size,
         'test': 1000
     }
     image_dataset = {
@@ -146,7 +148,7 @@ def main():
 
     dataloader = {x: get_dataloader(image_dataset[x], fix_seed=(x == 'test'))
                   for x in ('train', 'test')}
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, nesterov=True)
+    optimizer = optim.SGD(model.parameters(), lr=1.0e-3, momentum=0.9, nesterov=True)
 
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -162,11 +164,11 @@ def main():
     count_validation = 0
     not_improved = 0
     prev_validation = 100
-    writer = SummaryWriter(f'graph/glmnet_pairs_{ds_to_run}_sgd_full_conv19')
-    for idx, epoch in enumerate(range(epochs)):
-        print(f'Epoch {idx}')
+    writer = SummaryWriter(f'graph/glmnet_pairs_{ds_to_run}_sgd_full_conv_03_att')
+    for epoch in range(epochs):
+        print(f'Epoch {epoch}')
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer,
-                                                   milestones=[10, 20],
+                                                   milestones=[10],
                                                    gamma=0.1,
                                                    last_epoch=0 - 1)
         epoch_loss, epoch_acc, counter, model = train(
@@ -174,14 +176,16 @@ def main():
             dataloader, optimizer,scheduler,
             model, criterion, epoch_loss,
             epoch_acc,
-            idx
+            epoch
         )
-        writer.add_scalar('Epoch/loss', epoch_loss, idx)
-        writer.add_scalar('Epoch/acc', epoch_acc, counter)
+        torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_full_conv_03_att_{epoch}.pth')
+
+        writer.add_scalar('Epoch/loss', epoch_loss, epoch)
+        writer.add_scalar('Epoch/acc', epoch_acc, epoch)
         scheduler.step()
         plot_grad_flow(model.named_parameters())
 
-    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_full_conv19.pth')
+    torch.save(model.state_dict(), f'glmnet_pairs_{ds_to_run}_sgd_full_conv_03_att.pth')
 
     return
 

@@ -53,7 +53,7 @@ class CrossGraph(nn.Module):
         self.batch_size = batch_size
         self.att_cross = att_cross
         self.cross_att = RelationalAttentionCross(params=params)
-        self.voting_layer = Voting()
+        self.voting_layer = Voting(20)
 
         # self.sinkhorn_layer = Sinkhorn(10)
 
