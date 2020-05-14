@@ -78,8 +78,8 @@ def train(
         H1_gt, H2_gt = [_.to(device) for _ in inputs['Hs']]
         perm_matrix = inputs['gt_perm_mat'].to(device)
 
-        pos_1_exp = torch.zeros((pos_1.shape[0], 17, 2))
-        pos_2_exp = torch.zeros((pos_1.shape[0], 17, 2))
+        pos_1_exp = torch.zeros((pos_1.shape[0], 19, 2))
+        pos_2_exp = torch.zeros((pos_1.shape[0], 19, 2))
         pos_1_exp[:, :pos_1.shape[1], :] = pos_1
         pos_2_exp[:, :pos_2.shape[1], :] = pos_2
         pos_1_exp = pos_1_exp.to(device)
