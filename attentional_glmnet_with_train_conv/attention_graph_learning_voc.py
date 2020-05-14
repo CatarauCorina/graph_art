@@ -89,8 +89,8 @@ def train(
         x_i_1, y_i_2, edge_index_g1, edge_index_g2, edge_attr_1, edge_attr_2 = \
             model(data1, data2, pos_1_exp, pos_2_exp, n1_gt, n2_gt, inp_type)
 
-        loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
         try:
+            loss = criterion(edge_attr_1, perm_matrix, n1_gt, n2_gt)
             acc, _, __ = matching_accuracy_voc(hungarian(edge_attr_1,n1_gt, n2_gt), perm_matrix,n1_gt)
         except:
             print(hungarian(edge_attr_1, n1_gt, n2_gt))
