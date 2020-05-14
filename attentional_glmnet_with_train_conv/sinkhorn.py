@@ -23,7 +23,7 @@ class NSReLU(torch.autograd.Function):
         grad_input[self.neg] *= 0.1
         return grad_input
 
-def my_sinkhorn(log_alpha, n_iters = 20,multi_head=False):
+def my_sinkhorn(log_alpha, n_iters =20,multi_head=False):
     # torch version
     """Performs incomplete Sinkhorn normalization to log_alpha.
     By a theorem by Sinkhorn and Knopp [1], a sufficiently well-behaved  matrix
@@ -47,6 +47,7 @@ def my_sinkhorn(log_alpha, n_iters = 20,multi_head=False):
     """
     n = log_alpha.size()[2]
     log_alpha = log_alpha.view(-1, n, n)
+
     if multi_head:
         log_alphas = []
         for head in log_alpha:
@@ -55,12 +56,13 @@ def my_sinkhorn(log_alpha, n_iters = 20,multi_head=False):
             for i in range(n_iters):
                 head = head - (torch.logsumexp(head, dim=2, keepdim=True)).view(-1, n, 1)
                 head = head - (torch.logsumexp(head, dim=1, keepdim=True)).view(-1, 1, n)
-                head = torch.exp(head)
+            head = torch.exp(head)
             log_alphas.append(head)
         log_alpha = torch.stack(log_alphas, dim=0)
     else:
-        log_alpha = log_alpha - (torch.logsumexp(log_alpha, dim=2, keepdim=True)).view(-1, n, 1)
-        log_alpha = log_alpha - (torch.logsumexp(log_alpha, dim=1, keepdim=True)).view(-1, 1, n)
+        for i in range(n_iters):
+            log_alpha = log_alpha - (torch.logsumexp(log_alpha, dim=2, keepdim=True)).view(-1, n, 1)
+            log_alpha = log_alpha - (torch.logsumexp(log_alpha, dim=1, keepdim=True)).view(-1, 1, n)
         log_alpha = torch.exp(log_alpha)
     return log_alpha
 

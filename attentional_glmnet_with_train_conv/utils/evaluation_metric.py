@@ -32,6 +32,39 @@ def pck(x, x_gt, perm_mat, dist_threshs, ns):
 
     return match_num / total_num, match_num, total_num
 
+def matching_accuracy_voc(pmat_pred, pmat_gt, ns):
+    """
+    Matching Accuracy between predicted permutation matrix and ground truth permutation matrix.
+    :param pmat_pred: predicted permutation matrix
+    :param pmat_gt: ground truth permutation matrix
+    :param ns: number of exact pairs
+    :return: matching accuracy, matched num of pairs, total num of pairs
+    """
+    device = pmat_pred.device
+    batch_num = pmat_pred.shape[0]
+
+    pmat_gt = pmat_gt.to(device)
+
+    assert torch.all((pmat_pred == 0) + (pmat_pred == 1)), 'pmat_pred can noly contain 0/1 elements.'
+    assert torch.all((pmat_gt == 0) + (pmat_gt == 1)), 'pmat_gt should noly contain 0/1 elements.'
+    assert torch.all(torch.sum(pmat_pred, dim=-1) <= 1) and torch.all(torch.sum(pmat_pred, dim=-2) <= 1)
+    assert torch.all(torch.sum(pmat_gt, dim=-1) <= 1) and torch.all(torch.sum(pmat_gt, dim=-2) <= 1)
+
+    #indices_pred = torch.argmax(pmat_pred, dim=-1)
+    #indices_gt = torch.argmax(pmat_gt, dim=-1)
+
+    #matched = (indices_gt == indices_pred).type(pmat_pred.dtype)
+    match_num = 0
+    total_num = 0
+    for b in range(batch_num):
+        #match_num += torch.sum(matched[b, :ns[b]])
+        #total_num += ns[b].item()
+        pmat_pred = pmat_pred[:,:pmat_gt.shape[1],:pmat_gt.shape[2]]
+        match_num += torch.sum(pmat_pred[b, :ns[b]] * pmat_gt[b, :ns[b]])
+        total_num += torch.sum(pmat_gt[b, :ns[b]])
+
+    return match_num / total_num*100, match_num, total_num
+
 
 def matching_accuracy(pmat_pred, pmat_gt, ns):
     """
